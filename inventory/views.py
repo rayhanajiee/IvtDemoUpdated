@@ -5,8 +5,7 @@ from django.views.generic import TemplateView, View, CreateView, UpdateView, Del
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import UserRegisterForm, InventoryItemForm
-from .models import InventoryItem, Category
-from inventory_management.settings import LOW_QUANTITY
+from .models import InventoryItem, Category, Department
 from django.contrib import messages
 from django.http import HttpResponse
 from openpyxl import Workbook
@@ -19,7 +18,11 @@ def ExportData(request):
     ws.title = 'Inventory Data'
 
     # Define the header
-    headers = ['No', 'Name', 'Code', 'Quantity', 'PIC', 'Location', 'Department', 'Category', 'Date Created']
+    headers = [
+        'No Inventaris', 'Item', 'Kode Asset', 'Photo', 'Specifications', 'Department', 
+        'Category', 'Location', 'PIC', 'Condition', 'Date Created', 'History', 
+        'Tipe Unit', 'User'
+    ]
     ws.append(headers)
 
     # Fetch the data and write to the worksheet
@@ -31,13 +34,18 @@ def ExportData(request):
         ws.append([
             item.no,
             item.name,
-            item.code,
-            item.quantity,
-            item.pic,
-            item.location,
-            item.department,
+            item.kode_asset,
+            item.photo.url if item.photo else '',  # Include the photo URL if exists
+            item.specifications,
+            item.department.name if item.department else '',
             item.category.name if item.category else '',
+            item.location,
+            item.user.get_full_name() if item.user else '',
+            item.condition,
             date_created,
+            item.history,
+            item.tipe_unit,
+            item.user.username if item.user else '',
         ])
 
     # Save the workbook to a BytesIO object
@@ -50,7 +58,6 @@ def ExportData(request):
     response['Content-Disposition'] = 'attachment; filename=inventory_data.xlsx'
 
     return response
-
 
 def upload_image(request):
     if request.method == 'POST':
@@ -71,29 +78,12 @@ class Index(TemplateView):
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
-        items = InventoryItem.objects.filter(user=self.request.user.id).order_by('id')
+        items = InventoryItem.objects.filter(user=self.request.user).order_by('id')
         items_data = serializers.serialize('json', items)
-
-        low_inventory = InventoryItem.objects.filter(
-            user=self.request.user.id,
-            quantity__lte=LOW_QUANTITY
-        )
-
-        if low_inventory.count() > 0:
-            if low_inventory.count() > 1:
-                messages.error(request, f'{low_inventory.count()} items have low inventory')
-            else:
-                messages.error(request, f'{low_inventory.count()} item has low inventory')
-
-        low_inventory_ids = InventoryItem.objects.filter(
-            user=self.request.user.id,
-            quantity__lte=LOW_QUANTITY
-        ).values_list('id', flat=True)
 
         return render(request, 'inventory/dashboard.html', {
             'items': items,
-            'items_data': items_data,
-            'low_inventory_ids': low_inventory_ids
+            'items_data': items_data
         })
 
 class SignUpView(View):
@@ -125,6 +115,7 @@ class AddItem(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+        context['departments'] = Department.objects.all()
         return context
 
     def form_valid(self, form):
