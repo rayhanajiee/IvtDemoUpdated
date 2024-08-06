@@ -25,6 +25,8 @@ class InventoryItem(models.Model):
     po = models.CharField(max_length=255, db_column="PO", blank=True, null=True, default = "default")
     photo = models.ImageField(null=True, blank=True, upload_to='images/')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(db_column="date_created",auto_now_add=True)
+
     
     def __str__(self):
         return self.name

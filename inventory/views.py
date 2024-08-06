@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import UserRegisterForm, InventoryItemForm
 from .models import InventoryItem, Category, Department
-from django.contrib import messages
 from django.http import HttpResponse
 from openpyxl import Workbook
 from io import BytesIO
@@ -35,14 +34,14 @@ def ExportData(request):
             item.no,
             item.name,
             item.kode_asset,
-            item.photo.url if item.photo else '',  # Include the photo URL if exists
+            item.photo.url if item.photo else '',  # Include the photo URL if it exists
             item.specifications,
             item.department.name if item.department else '',
             item.category.name if item.category else '',
             item.location,
             item.user.get_full_name() if item.user else '',
             item.condition,
-            date_created,
+            date_created,  # Use the naive datetime without timezone
             item.history,
             item.tipe_unit,
             item.user.username if item.user else '',
@@ -78,7 +77,7 @@ class Index(TemplateView):
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
-        items = InventoryItem.objects.filter(user=self.request.user).order_by('id')
+        items = InventoryItem.objects.filter(user=request.user).order_by('id')
         items_data = serializers.serialize('json', items)
 
         return render(request, 'inventory/dashboard.html', {
@@ -100,9 +99,9 @@ class SignUpView(View):
                 username=form.cleaned_data['username'],
                 password=form.cleaned_data['password1']
             )
-
-            login(request, user)
-            return redirect('index')
+            if user is not None:
+                login(request, user)
+                return redirect('index')
 
         return render(request, 'inventory/signup.html', {'form': form})
 
