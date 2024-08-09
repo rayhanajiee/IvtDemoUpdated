@@ -12,3 +12,4 @@ django-crispy-forms
 gunicorn
 dj_database_url
 django-environ 
+djangorestframework
