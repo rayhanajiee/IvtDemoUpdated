@@ -96,8 +96,10 @@
                             <td>{{ item.location }}</td>
                             <td>
                                 <button class="btn btn-custom btn-sm toggle-details">Show Details</button>
-                                <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
-                                <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
+                                {% if not request.user.is_superuser %}
+                                    <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                    <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
+                                {% endif %}
                             </td>
                         </tr>
                         <tr class="extra-details d-none">
