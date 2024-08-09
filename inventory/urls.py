@@ -16,4 +16,3 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='inventory/logout.html'), name='logout'),
     path('export-data/', views.ExportData, name='export-data')  # Correct usage
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

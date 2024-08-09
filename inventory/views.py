@@ -2,7 +2,7 @@ from django.core import serializers
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View, CreateView, UpdateView, DeleteView
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import UserRegisterForm, InventoryItemForm
 from .models import InventoryItem, Category, Department
@@ -18,33 +18,45 @@ def ExportData(request):
 
     # Define the header
     headers = [
-        'No Inventaris', 'Item', 'Kode Asset', 'Photo', 'Specifications', 'Department', 
-        'Category', 'Location', 'PIC', 'Condition', 'Date Created', 'History', 
-        'Tipe Unit', 'User'
+        'Date Created','No Inventaris', 'Item', 'Photo', 'Specifications', 'Department', 
+        'Category', 'Location', 'PIC', 'Condition', 'History', 
+        'Tipe Unit', 'Input by', 'digit_1', 'kode_asset','digit_23', 'kode_golongan',
+        'digit_45', 'kdoe_jenisunit', 'urutan', 'bulan', 'tahun', 'bpb_ppat',
+        'po',
     ]
     ws.append(headers)
 
     # Fetch the data and write to the worksheet
-    items = InventoryItem.objects.filter(user=request.user)
+    items = InventoryItem.objects.all() if request.user.is_superuser else InventoryItem.objects.filter(user=request.user)
     for item in items:
         # Remove timezone information from datetime objects
         date_created = item.date_created.replace(tzinfo=None) if item.date_created else ''
         
         ws.append([
+            date_created,
             item.no,
             item.name,
-            item.kode_asset,
             item.photo.url if item.photo else '',  # Include the photo URL if it exists
             item.specifications,
             item.department.name if item.department else '',
             item.category.name if item.category else '',
             item.location,
-            item.user.get_full_name() if item.user else '',
+            item.pic if item.pic else '',
             item.condition,
-            date_created,  # Use the naive datetime without timezone
             item.history,
             item.tipe_unit,
             item.user.username if item.user else '',
+            item.digit_1,
+            item.kode_asset,
+            item.digit_23,
+            item.kode_golongan,
+            item.digit_45,
+            item.kode_jenisunit,
+            item.urutan,
+            item.bulan,
+            item.tahun,
+            item.bpb_ppat,
+            item.po
         ])
 
     # Save the workbook to a BytesIO object
@@ -77,7 +89,7 @@ class Index(TemplateView):
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
-        items = InventoryItem.objects.filter(user=request.user).order_by('id')
+        items = InventoryItem.objects.all() if request.user.is_superuser else InventoryItem.objects.filter(user=request.user).order_by('id')
         items_data = serializers.serialize('json', items)
 
         return render(request, 'inventory/dashboard.html', {
@@ -132,3 +144,8 @@ class DeleteItem(LoginRequiredMixin, DeleteView):
     template_name = 'inventory/delete_item.html'
     success_url = reverse_lazy('dashboard')
     context_object_name = 'item'
+
+class CustomLogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('inventory/logout.html')

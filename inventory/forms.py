@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Category, InventoryItem, Department
+from .models import Category, InventoryItem, Department, Condition
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
@@ -13,6 +13,8 @@ class UserRegisterForm(UserCreationForm):
 class InventoryItemForm(forms.ModelForm):
     category = forms.ModelChoiceField(queryset=Category.objects.all(), initial=0)
     department = forms.ModelChoiceField(queryset=Department.objects.all(), initial=0)
+    condition = forms.ModelChoiceField(queryset=Condition.objects.all(), initial=0)
+
     
     class Meta:
         model = InventoryItem
