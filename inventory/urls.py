@@ -4,6 +4,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import Index, Dashboard, AddItem, EditItem, DeleteItem, SignUpView, ExportData
 from . import views
+from .restapi import *
 
 urlpatterns = [
     path('', Index.as_view(), name='index'),
@@ -14,5 +15,14 @@ urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='inventory/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='inventory/logout.html'), name='logout'),
-    path('export-data/', views.ExportData, name='export-data')  # Correct usage
+    path('export-data/', views.ExportData, name='export-data'),  # Correct usage
+
+    # mobile urls api
+    path('api/register/', api_register, name='api_register'),
+    path('api/login/', api_login, name='api_login'),
+    path('api/check_inventory/', api_check_inventory, name='api_check_inventory'),
+    path('api/add_inventory/', api_add_inventory, name='api_add_inventory'),
+    path('api/categories/', category_list, name='category_list'),
+    path('api/moving/', api_moving, name='moving'),
+    path('api/service/', api_service, name='service'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
