@@ -88,12 +88,12 @@
                             <td>{{ item.name }}</td>
                             <td>{{ item.condition }}</td>
                             {% if item.photo %}
-                                <td><img src="{{ item.photo.url }}" alt="{{ item.item }}" style="width: 50px; height: auto;"></td>
+                                <td><img src="{{ item.photo.url }}" alt="{{ item.item }}" style="width: 150px; height: auto;"></td>
                             {% else %}
                                 <td>No photo available</td>
                             {% endif %}
-                            <td>{{ item.user }}</td>
-                            <td>{{ item.lokasi_update_2024 }}</td>
+                            <td>{{ item.pic }}</td>
+                            <td>{{ item.location }}</td>
                             <td>
                                 <button class="btn btn-custom btn-sm toggle-details">Show Details</button>
                                 <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
@@ -114,7 +114,7 @@
                                     </div>
                                     <div class="col"><strong>Date Created:</strong> {{ item.date_created }}</div>
                                     <div class="col"><strong>History:</strong> {{ item.keterangan }}</div>
-                                    <div class="col"><strong>Condition:</strong> {{ item.kondisi }}</div>
+                                    <div class="col"><strong>Condition:</strong> {{ item.condition }}</div>
                                     <div class="col"><strong>Tipe Unit:</strong> {{ item.tipe_unit }}</div>
                                 </div>
                             </td>
@@ -132,7 +132,7 @@
 
             function populateDropdown(dropdownId, data, key) {
                 const dropdown = document.getElementById(dropdownId);
-                const uniqueValues = [...new Set(data.map(item => item.fields[key]))];
+                const uniqueValues = [...new Set(data.map(item => item.fields[key]))].filter(value => value);
                 uniqueValues.forEach(value => {
                     const option = document.createElement('option');
                     option.value = value;
@@ -142,11 +142,11 @@
             }
 
             // Populate dropdowns
-            populateDropdown('filterNo', items, 'no_inventaris');
-            populateDropdown('filterItem', items, 'item');
-            populateDropdown('filterCode', items, 'kode_asset');
-            populateDropdown('filterPic', items, 'user');
-            populateDropdown('filterLocation', items, 'lokasi_update_2024');
+            populateDropdown('filterNo', items, 'no');
+            populateDropdown('filterItem', items, 'name');
+            populateDropdown('filterCode', items, 'condition.name');
+            populateDropdown('filterPic', items, 'pic');
+            populateDropdown('filterLocation', items, 'location');
 
             // Toggle Details
             function bindToggleDetails() {

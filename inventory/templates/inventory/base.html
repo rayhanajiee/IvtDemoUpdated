@@ -78,6 +78,16 @@
                 </li>
                 <!-- Add more navigation links as needed -->
             </ul>
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                    <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">Sign Out</a>
+                </li>
+                {% endif %}
+            </ul>
         </div>
     </nav>
 
