@@ -14,9 +14,9 @@ class InventoryItem(models.Model):
     tipe_unit = models.CharField(max_length=255, db_column="TipeUnit")
     digit_1 = models.IntegerField(db_column="Digit1", blank=True, null=True, default = 0)
     kode_asset = models.CharField(max_length=255, db_column="KodeAsset",blank=True, null=True, default = "default")
-    digit_23 = models.IntegerField(db_column="Digit2&3", blank=True, null=True, default = 0)
+    digit_23 = models.IntegerField(db_column="Digit2_3", blank=True, null=True, default = 0)
     kode_golongan = models.CharField(max_length=255, db_column="KodeGolongan",blank=True, null=True, default = "default")
-    digit_45 = models.IntegerField(db_column="Digit4&5", blank=True, null=True, default = 0)
+    digit_45 = models.IntegerField(db_column="Digit4_5", blank=True, null=True, default = 0)
     kode_jenisunit = models.CharField(max_length=255, db_column="KodeJenisUnit", blank=True, null=True, default = "default")
     urutan = models.IntegerField(db_column="Urutan", blank=True, null=True, default = 0)
     bulan = models.IntegerField(db_column="Bulan", blank=True, null=True, default = 0)
@@ -44,7 +44,7 @@ class Department(models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name_plural = 'categories'
+        verbose_name_plural = 'departments'
 
     def __str__(self):
         return self.name
@@ -53,7 +53,7 @@ class Condition(models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        verbose_name_plural = 'categories'
+        verbose_name_plural = 'conditions'
 
     def __str__(self):
         return self.name
