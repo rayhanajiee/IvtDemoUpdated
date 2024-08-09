@@ -6,7 +6,6 @@ sqlparse==0.4.3
 tzdata==2022.7
 psycopg2-binary
 crispy-bootstrap5
-inventory
 psycopg
 django-crispy-forms
 gunicorn
