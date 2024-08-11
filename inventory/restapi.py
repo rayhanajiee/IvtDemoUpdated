@@ -13,7 +13,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib.auth import authenticate, login
 from django.utils import timezone
-from .models import InventoryItem, Category
+from .models import InventoryItem, Category, Condition
 
 
 def token_required(f):
