@@ -88,18 +88,16 @@
                             <td>{{ item.name }}</td>
                             <td>{{ item.condition }}</td>
                             {% if item.photo %}
-                                <td><img src="{{ item.photo.url }}" alt="{{ item.item }}" style="width: 150px; height: auto;"></td>
+                                <td><img src="{{ item.photo.url }}" alt="{{ item.item }}" style="width: 50px; height: auto;"></td>
                             {% else %}
                                 <td>No photo available</td>
                             {% endif %}
-                            <td>{{ item.pic }}</td>
+                            <td>{{ item.user }}</td>
                             <td>{{ item.location }}</td>
                             <td>
                                 <button class="btn btn-custom btn-sm toggle-details">Show Details</button>
-                                {% if not request.user.is_superuser %}
-                                    <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
-                                    <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
-                                {% endif %}
+                                <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
                             </td>
                         </tr>
                         <tr class="extra-details d-none">
@@ -115,7 +113,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="col"><strong>Date Created:</strong> {{ item.date_created }}</div>
-                                    <div class="col"><strong>History:</strong> {{ item.keterangan }}</div>
+                                    <div class="col"><strong>History:</strong> {{ item.history }}</div>
                                     <div class="col"><strong>Condition:</strong> {{ item.condition }}</div>
                                     <div class="col"><strong>Tipe Unit:</strong> {{ item.tipe_unit }}</div>
                                 </div>
@@ -134,7 +132,7 @@
 
             function populateDropdown(dropdownId, data, key) {
                 const dropdown = document.getElementById(dropdownId);
-                const uniqueValues = [...new Set(data.map(item => item.fields[key]))].filter(value => value);
+                const uniqueValues = [...new Set(data.map(item => item.fields[key]))];
                 uniqueValues.forEach(value => {
                     const option = document.createElement('option');
                     option.value = value;
@@ -144,11 +142,11 @@
             }
 
             // Populate dropdowns
-            populateDropdown('filterNo', items, 'no');
-            populateDropdown('filterItem', items, 'name');
-            populateDropdown('filterCode', items, 'condition.name');
-            populateDropdown('filterPic', items, 'pic');
-            populateDropdown('filterLocation', items, 'location');
+            populateDropdown('filterNo', items, 'no_inventaris');
+            populateDropdown('filterItem', items, 'item');
+            populateDropdown('filterCode', items, 'kode_asset');
+            populateDropdown('filterPic', items, 'user');
+            populateDropdown('filterLocation', items, 'lokasi_update_2024');
 
             // Toggle Details
             function bindToggleDetails() {
@@ -248,7 +246,7 @@
                         <td>${item.fields.kode_asset}</td>
                         ${item.fields.photo ? `<td><img src="${item.fields.photo}" alt="${item.fields.item}" style="width: 50px; height: auto;"></td>` : '<td>No photo available</td>'}
                         <td>${item.fields.user}</td>
-                        <td>${item.fields.lokasi_update_2024}</td>
+                        <td>${item.fields.location}</td>
                         <td>
                             <button class="btn btn-custom btn-sm toggle-details">Show Details</button>
                             <a href="${item.pk}" class="btn btn-outline-secondary">Edit</a>
@@ -264,8 +262,8 @@
                                 <div class="col"><strong>Department:</strong> ${item.fields.department}</div>
                                 <div class="col"><strong>Category:</strong> ${item.fields.category ? item.fields.category.name : 'N/A'}</div>
                                 <div class="col"><strong>Date Created:</strong> ${item.fields.date_created}</div>
-                                <div class="col"><strong>History:</strong> ${item.fields.keterangan}</div>
-                                <div class="col"><strong>Condition:</strong> ${item.fields.kondisi}</div>
+                                <div class="col"><strong>History:</strong> ${item.fields.history}</div>
+                                <div class="col"><strong>Condition:</strong> ${item.fields.condition}</div>
                                 <div class="col"><strong>Tipe Unit:</strong> ${item.fields.tipe_unit}</div>
                             </div>
                         </td>
