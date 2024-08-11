@@ -35,7 +35,14 @@ if ENVIRONMENT == "development":
 else:
     DEBUG = False
 
+# ALLOWED_HOSTS = ['localhost',"127.0.0.1","ivtdemo-production.up.railway.app"]
+
 ALLOWED_HOSTS = ['*']
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_DOMAIN = None
+CORS_ALLOWED_ORIGINS = [
+    "*"
+]
 
 # Application definition
 
@@ -150,7 +157,5 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 LOGIN_REDIRECT_URL = '/dashboard'
 LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = '/'
 
 LOW_QUANTITY = 3
-DATA_UPLOAD_MAX_MEMORY_SIZE = 25242880
