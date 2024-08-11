@@ -151,7 +151,7 @@ def api_add_inventory(request):
         name = request.POST.get('name')
         specifications = request.POST.get('specifications')
         location = request.POST.get('location')
-        condition = request.POST.get('condition')
+        condition_value = request.POST.get('condition')  # Get the condition as a string
         user = request.POST.get('user')
         user_id = request.session.get('user_id')
 
@@ -163,6 +163,12 @@ def api_add_inventory(request):
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
 
+        # Look up the Condition instance
+        try:
+            condition_instance = Condition.objects.get(name=condition_value)  # Adjust based on how your Condition model is structured
+        except Condition.DoesNotExist:
+            return JsonResponse({'error': 'Condition not found'}, status=400)
+
         # Save the inventory item
         try:
             inventory_item = InventoryItem.objects.create(
@@ -170,7 +176,7 @@ def api_add_inventory(request):
                 name=name,
                 specifications=specifications,
                 location=location,
-                condition=condition,
+                condition=condition_instance,  # Assign the instance
                 pic=user,
                 user=user_object
             )
@@ -185,8 +191,8 @@ def api_add_inventory(request):
 
             return JsonResponse({'message': 'Inventory item created successfully'}, status=201)
 
-        except Category.DoesNotExist:
-            return JsonResponse({'error': 'Category not found'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
