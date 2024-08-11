@@ -130,44 +130,105 @@ def category_list(request):
     categories_list = list(categories)
     return JsonResponse(categories_list, safe=False)
 
+
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import os
+
 @csrf_exempt
 @token_required
 def api_add_inventory(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        
-        no = data.get('no')
-        name = data.get('name')
-        specifications = data.get('specifications')
-        location = data.get('location')
-        condition = data.get('condition')
-        user = data.get('user')
-        
+        # Check if the request contains files (for photo upload)
+        if 'photo' in request.FILES:
+            print("image file received")
+            photo = request.FILES['photo']
+        else:
+            photo = None
+
+        # Extract other data from the POST request
+        no = request.POST.get('no')
+        name = request.POST.get('name')
+        specifications = request.POST.get('specifications')
+        location = request.POST.get('location')
+        condition = request.POST.get('condition')
+        user = request.POST.get('user')
         user_id = request.session.get('user_id')
+
         if not user_id:
             return JsonResponse({'error': 'User not authenticated'}, status=401)
         
         try:
-            user = User.objects.get(id=user_id)
+            user_object = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
-        
+
         # Save the inventory item
         try:
-            InventoryItem.objects.create(
+            inventory_item = InventoryItem.objects.create(
                 no=no,
                 name=name,
                 specifications=specifications,
                 location=location,
                 condition=condition,
                 pic=user,
-                user=user
+                user=user_object
             )
+
+            # If there's an uploaded photo, save it
+            if photo:
+                # Save photo in a designated location
+                print("saving images..")
+                file_path = default_storage.save(f'images/{photo.name}', ContentFile(photo.read()))
+                inventory_item.photo = file_path
+                inventory_item.save()
+
             return JsonResponse({'message': 'Inventory item created successfully'}, status=201)
+
         except Category.DoesNotExist:
             return JsonResponse({'error': 'Category not found'}, status=400)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+# @csrf_exempt
+# @token_required
+# def api_add_inventory(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+        
+#         no = data.get('no')
+#         name = data.get('name')
+#         specifications = data.get('specifications')
+#         location = data.get('location')
+#         condition = data.get('condition')
+#         user = data.get('user')
+        
+#         user_id = request.session.get('user_id')
+#         if not user_id:
+#             return JsonResponse({'error': 'User not authenticated'}, status=401)
+        
+#         try:
+#             user = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return JsonResponse({'error': 'User not found'}, status=404)
+        
+#         # Save the inventory item
+#         try:
+#             InventoryItem.objects.create(
+#                 no=no,
+#                 name=name,
+#                 specifications=specifications,
+#                 location=location,
+#                 condition=condition,
+#                 pic=user,
+#                 user=user
+#             )
+#             return JsonResponse({'message': 'Inventory item created successfully'}, status=201)
+#         except Category.DoesNotExist:
+#             return JsonResponse({'error': 'Category not found'}, status=400)
+    
+#     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 @token_required
@@ -239,4 +300,4 @@ def api_service(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
