@@ -103,7 +103,7 @@ def api_check_inventory(request):
                 'pic': item.pic,
                 'bpb_ppat': item.bpb_ppat,
                 'bulan': item.bulan,
-                'condition': item.condition,
+                'condition': item.condition.name if item.condition else None,  # Convert Condition to a string
                 'digit_1': item.digit_1,
                 'digit_23': item.digit_23,
                 'digit_45': item.digit_45,
