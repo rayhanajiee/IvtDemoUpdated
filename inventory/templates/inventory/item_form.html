@@ -2,36 +2,117 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-	<a href="{% url 'dashboard' %}" class="btn btn-outline-primary my-3 mx-4">Go Back</a>
+<a href="{% url 'dashboard' %}" class="btn btn-outline-primary my-3 mx-4">Go Back</a>
 
-	<div class="row">
-		<div class="col-11 col-md-4 mx-auto mt-5">
-			<h1>Inventory Item</h1>
+<div class="row">
+    <div class="col-12 col-md-6">
+        <div class="p-4">
+            <h1>Inventory Item</h1>
 
-			<style>
-				form label {
-					font-weight: bold;
-					text-transform: uppercase;
-				}
+            <style>
+                form label {
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
 
-				/* Target the asterisk for required fields */
-				form label .required-field::after {
-					content: '*';
-					color: red;
-					font-weight: bold;
-					font-size: 1.2em;
-					margin-left: 0.2em;
-				}
-			</style>
+                /* Target the asterisk for required fields */
+                form label .required-field::after {
+                    content: '*';
+                    color: red;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    margin-left: 0.2em;
+                }
+            </style>
 
-			<form method="POST" enctype="multipart/form-data">
-				{% csrf_token %}
-				{{ form|crispy }}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
 
-				<div class="mt-3">
-					<button class="btn btn-primary">Add Item</button>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="mt-3">
+                    <button class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="p-4">
+            <h2>123.45.67.urutan.mm.yy</h2>
+            
+            <!-- Table to Display User Input -->
+            <table class="table table-bordered mb-4" id="description-table">
+                <thead>
+                    <tr>
+                        <th scope="col">3 Digit Pertama</th>
+                        <th scope="col">2 Digit Kedua</th>
+                        <th scope="col">2 Digit Ketiga</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for description in descriptions %}
+                        <tr>
+                            <td>{{ description.first_digit }}</td>
+                            <td>{{ description.second_digit }}</td>
+                            <td>{{ description.third_digit }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    
+            <!-- Separated Input Fields -->
+            <form method="POST" id="description-form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="first_digit"><strong>3 Digit Pertama:</strong></label>
+                    <input type="text" name="first_digit" id="first_digit" class="form-control" placeholder="e.g., 110">
+                </div>
+                <div class="mb-3">
+                    <label for="second_digit"><strong>2 Digit Kedua:</strong></label>
+                    <input type="text" name="second_digit" id="second_digit" class="form-control" placeholder="e.g., 23">
+                </div>
+                <div class="mb-3">
+                    <label for="third_digit"><strong>2 Digit Ketiga:</strong></label>
+                    <input type="text" name="third_digit" id="third_digit" class="form-control" placeholder="e.g., 45">
+                </div>
+                <button class="btn btn-primary mt-3" type="submit">Save Descriptions</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('description-form').addEventListener('submit', function(e) {
+        e.preventDefault();  // Prevent the form from submitting the traditional way
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '{% url "save_code_description" %}', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                const tableBody = document.querySelector('#description-table tbody');
+                tableBody.innerHTML = '';  // Clear the table
+
+                // Append new rows to the table
+                data.descriptions.forEach(function(description) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${description.first_digit}</td>
+                        <td>${description.second_digit}</td>
+                        <td>${description.third_digit}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                form.reset();  // Clear the form fields
+            }
+        };
+
+        xhr.send(formData);
+    });
+</script>
 {% endblock content %}
