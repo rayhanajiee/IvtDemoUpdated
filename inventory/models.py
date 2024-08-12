@@ -30,6 +30,18 @@ class InventoryItem(models.Model):
     
     def __str__(self):
         return self.name
+    
+class DescriptionModel(models.Model):
+    first_digit = models.CharField(max_length=100)
+    second_digit = models.TextField()
+    third_digit = models.TextField()
+    day = models.CharField(max_length=2)
+    month = models.CharField(max_length=2)
+    year = models.CharField(max_length=4)
+
+    def __str__(self):
+        return f'{self.first_digit} - {self.day}/{self.month}/{self.year}'
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
