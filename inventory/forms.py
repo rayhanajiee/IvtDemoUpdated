@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Category, InventoryItem, Department, Condition
 
+class DescriptionForm(forms.Form):
+    first_digit = forms.CharField(max_length=255)
+    second_digit = forms.CharField(widget=forms.Textarea)
+    third_digit = forms.CharField(widget=forms.Textarea)
+    day = forms.CharField(max_length=2)
+    month = forms.CharField(max_length=2)
+    year = forms.CharField(max_length=4)
+
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
 
