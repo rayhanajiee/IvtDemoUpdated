@@ -92,7 +92,7 @@
                             {% else %}
                                 <td>No photo available</td>
                             {% endif %}
-                            <td>{{ item.user }}</td>
+                            <td>{{ item.pic }}</td>
                             <td>{{ item.location }}</td>
                             <td>
                                 <!-- Show Details button (Visible to everyone) -->
@@ -135,9 +135,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             const items = JSON.parse(document.getElementById('inventory-data').textContent);
 
-            function populateDropdown(dropdownId, data, key) {
+                        function populateDropdown(dropdownId, data, key) {
                 const dropdown = document.getElementById(dropdownId);
-                const uniqueValues = [...new Set(data.map(item => item.fields[key]))];
+                const uniqueValues = [...new Set(data.map(item => item.fields[key]))]
+                    .filter(value => value)
+                    .sort(); // Sort the unique values alphabetically
+            
                 uniqueValues.forEach(value => {
                     const option = document.createElement('option');
                     option.value = value;
@@ -147,11 +150,11 @@
             }
 
             // Populate dropdowns
-            populateDropdown('filterNo', items, 'no_inventaris');
-            populateDropdown('filterItem', items, 'item');
-            populateDropdown('filterCode', items, 'kode_asset');
-            populateDropdown('filterPic', items, 'user');
-            populateDropdown('filterLocation', items, 'lokasi_update_2024');
+            populateDropdown('filterNo', items, 'no');
+            populateDropdown('filterItem', items, 'name');
+            populateDropdown('filterCode', items, 'condition');
+            populateDropdown('filterPic', items, 'pic');
+            populateDropdown('filterLocation', items, 'location');
 
             // Toggle Details
             function bindToggleDetails() {
