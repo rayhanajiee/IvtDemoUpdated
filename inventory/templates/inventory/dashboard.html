@@ -95,9 +95,14 @@
                             <td>{{ item.user }}</td>
                             <td>{{ item.location }}</td>
                             <td>
+                                <!-- Show Details button (Visible to everyone) -->
                                 <button class="btn btn-custom btn-sm toggle-details">Show Details</button>
-                                <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
-                                <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
+
+                                <!-- Edit and Delete buttons (Hidden for superuser) -->
+                                {% if not user.is_superuser %}
+                                    <a href="{% url 'edit-item' item.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                    <a href="{% url 'delete-item' item.pk %}" class="btn btn-delete">Delete</a>
+                                {% endif %}
                             </td>
                         </tr>
                         <tr class="extra-details d-none">
