@@ -151,7 +151,7 @@ def api_add_inventory(request):
         name = request.POST.get('name')
         specifications = request.POST.get('specifications')
         location = request.POST.get('location')
-        condition_value = request.POST.get('condition')  # Get the condition as a string
+        condition_id = request.POST.get('condition')  # changed from condition to condition_id
         user = request.POST.get('user')
         user_id = request.session.get('user_id')
 
@@ -163,27 +163,23 @@ def api_add_inventory(request):
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
 
-        # Look up the Condition instance
         try:
-            condition_instance = Condition.objects.get(name=condition_value)  # Adjust based on how your Condition model is structured
-        except Condition.DoesNotExist:
-            return JsonResponse({'error': 'Condition not found'}, status=400)
+            # Fetch the Condition instance using the ID
+            condition_instance = Condition.objects.get(id=condition_id)
 
-        # Save the inventory item
-        try:
+            # Save the inventory item
             inventory_item = InventoryItem.objects.create(
                 no=no,
                 name=name,
                 specifications=specifications,
                 location=location,
-                condition=condition_instance,  # Assign the instance
+                condition=condition_instance,  # Assign the instance here
                 pic=user,
                 user=user_object
             )
 
             # If there's an uploaded photo, save it
             if photo:
-                # Save photo in a designated location
                 print("saving images..")
                 file_path = default_storage.save(f'images/{photo.name}', ContentFile(photo.read()))
                 inventory_item.photo = file_path
@@ -191,11 +187,10 @@ def api_add_inventory(request):
 
             return JsonResponse({'message': 'Inventory item created successfully'}, status=201)
 
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        except Condition.DoesNotExist:
+            return JsonResponse({'error': 'Condition not found'}, status=400)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 
 # @csrf_exempt
 # @token_required
