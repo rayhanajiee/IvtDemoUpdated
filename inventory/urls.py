@@ -16,6 +16,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='inventory/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='inventory/logout.html'), name='logout'),
     path('export-data/', views.ExportData, name='export-data'),  # Correct usage
+    path('save-code-description/', views.save_code_description, name='save_code_description'),
 
     # mobile urls api
     path('api/register/', api_register, name='api_register'),
