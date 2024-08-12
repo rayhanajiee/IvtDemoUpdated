@@ -4,11 +4,54 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View, CreateView, UpdateView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import UserRegisterForm, InventoryItemForm
-from .models import InventoryItem, Category, Department
-from django.http import HttpResponse
+from .forms import UserRegisterForm, InventoryItemForm, DescriptionForm
+from .models import InventoryItem, Category, Department, Condition, DescriptionModel
+from django.http import HttpResponse, JsonResponse
 from openpyxl import Workbook
 from io import BytesIO
+
+
+def save_code_description(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Retrieve the user inputs
+        first_digit = request.POST.get('first_digit')
+        second_digit = request.POST.get('second_digit')
+        third_digit = request.POST.get('third_digit')
+        day = request.POST.get('day')
+        month = request.POST.get('month')
+        year = request.POST.get('year')
+
+        # Save the inputs to the database
+        description = DescriptionModel.objects.create(
+            first_digit=first_digit,
+            second_digit=second_digit,
+            third_digit=third_digit,
+            day=day,
+            month=month,
+            year=year
+        )
+
+        # Retrieve all saved descriptions to update the table
+        descriptions = DescriptionModel.objects.all().values()
+
+        # Return a JSON response for AJAX requests
+        return JsonResponse({'descriptions': list(descriptions)})
+    
+    # For non-AJAX requests (initial page load), render the page normally
+    descriptions = DescriptionModel.objects.all()  # Retrieve all descriptions
+
+    return render(request, 'inventory/item_form.html', {
+        'descriptions': descriptions,
+    })
+    
+    # For GET requests or non-AJAX POST requests, render the page normally
+    form = DescriptionForm()
+    descriptions = DescriptionModel.objects.all()
+
+    return render(request, 'inventory/item_form.html', {
+        'form': form,
+        'descriptions': descriptions,
+    })
 
 def ExportData(request):
     # Create a workbook and a worksheet
@@ -42,7 +85,7 @@ def ExportData(request):
             item.category.name if item.category else '',
             item.location,
             item.pic if item.pic else '',
-            item.condition,
+            item.condition.name,
             item.history,
             item.tipe_unit,
             item.user.username if item.user else '',
@@ -89,12 +132,21 @@ class Index(TemplateView):
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
-        items = InventoryItem.objects.all() if request.user.is_superuser else InventoryItem.objects.filter(user=request.user).order_by('id')
+        conditions = Condition.objects.all()
+        selected_condition = request.GET.get('condition_name', '')
+
+        if selected_condition:
+            items = InventoryItem.objects.filter(condition__name=selected_condition)
+        else:
+            items = InventoryItem.objects.all() if request.user.is_superuser else InventoryItem.objects.filter(user=request.user).order_by('id')
+
         items_data = serializers.serialize('json', items)
 
         return render(request, 'inventory/dashboard.html', {
             'items': items,
-            'items_data': items_data
+            'items_data': items_data,
+            'conditions': conditions,
+            'selected_condition': selected_condition,
         })
 
 class SignUpView(View):
@@ -127,6 +179,8 @@ class AddItem(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['departments'] = Department.objects.all()
+        context['conditions'] = Condition.objects.all()
+        context['descriptions'] = DescriptionModel.objects.all()  # Pulling data from DescriptionModel
         return context
 
     def form_valid(self, form):
