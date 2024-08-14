@@ -52,9 +52,7 @@
                             </select>
                         </th>
                         <th>
-                            <select id="filterCode" class="form-control">
-                                <option value="">All</option>
-                            </select>
+                            <input type="text" id="conditionSearch" class="form-control" placeholder="OK/NOT OK/AFKIR/NULL">
                         </th>
                         <th></th>
                         <th>
@@ -134,13 +132,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const items = JSON.parse(document.getElementById('inventory-data').textContent);
-
-                        function populateDropdown(dropdownId, data, key) {
+        
+            function populateDropdown(dropdownId, data, key) {
                 const dropdown = document.getElementById(dropdownId);
                 const uniqueValues = [...new Set(data.map(item => item.fields[key]))]
                     .filter(value => value)
                     .sort(); // Sort the unique values alphabetically
-            
+        
                 uniqueValues.forEach(value => {
                     const option = document.createElement('option');
                     option.value = value;
@@ -148,14 +146,13 @@
                     dropdown.appendChild(option);
                 });
             }
-
+        
             // Populate dropdowns
             populateDropdown('filterNo', items, 'no');
             populateDropdown('filterItem', items, 'name');
-            populateDropdown('filterCode', items, 'condition');
             populateDropdown('filterPic', items, 'pic');
             populateDropdown('filterLocation', items, 'location');
-
+        
             // Toggle Details
             function bindToggleDetails() {
                 document.querySelectorAll('.toggle-details').forEach(button => {
@@ -167,64 +164,63 @@
                 });
             }
             bindToggleDetails();
-
+        
             // Update item count
             function updateItemCount() {
                 const visibleRows = document.querySelectorAll('#inventoryTableBody > tr:not(.extra-details):not([style*="display: none"])');
                 document.getElementById('itemCount').textContent = `Total items: ${visibleRows.length}`;
             }
-
+        
             // Filter Rows
-            const filters = document.querySelectorAll('#filterNo, #filterItem, #filterCode, #filterPic, #filterLocation');
+            const filters = document.querySelectorAll('#filterNo, #filterItem, #filterPic, #filterLocation');
             filters.forEach(filter => {
                 filter.addEventListener('change', function () {
                     filterRows();
                 });
             });
-
+        
+            document.getElementById('conditionSearch').addEventListener('input', function () {
+                filterRows();
+            });
+        
             function filterRows() {
                 const filterValues = {
                     no: document.getElementById('filterNo').value.toLowerCase(),
                     item: document.getElementById('filterItem').value.toLowerCase(),
-                    code: document.getElementById('filterCode').value.toLowerCase(),
+                    condition: document.getElementById('conditionSearch').value.toLowerCase(), // Use the condition search value
                     pic: document.getElementById('filterPic').value.toLowerCase(),
                     location: document.getElementById('filterLocation').value.toLowerCase(),
                     search: document.getElementById('searchBar').value.toLowerCase(),
                 };
-
+        
                 document.querySelectorAll('#inventoryTableBody > tr:not(.extra-details)').forEach(row => {
                     const no = row.children[0].textContent.toLowerCase();
                     const item = row.children[1].textContent.toLowerCase();
-                    const code = row.children[2].textContent.toLowerCase();
+                    const condition = row.children[2].textContent.toLowerCase();
                     const pic = row.children[4].textContent.toLowerCase();
                     const location = row.children[5].textContent.toLowerCase();
-
+        
                     const matches =
                         (filterValues.no === "" || no.includes(filterValues.no)) &&
                         (filterValues.item === "" || item.includes(filterValues.item)) &&
-                        (filterValues.code === "" || code.includes(filterValues.code)) &&
+                        (filterValues.condition === "" || condition.includes(filterValues.condition)) &&
                         (filterValues.pic === "" || pic.includes(filterValues.pic)) &&
                         (filterValues.location === "" || location.includes(filterValues.location)) &&
                         (filterValues.search === "" ||
                             no.includes(filterValues.search) ||
                             item.includes(filterValues.search) ||
-                            code.includes(filterValues.search) ||
+                            condition.includes(filterValues.search) ||
                             pic.includes(filterValues.search) ||
                             location.includes(filterValues.search));
-
+        
                     row.style.display = matches ? '' : 'none';
                     row.nextElementSibling.style.display = matches ? '' : 'none';
                 });
-
+        
                 // Update the count of visible items
                 updateItemCount();
             }
-
-            // Search Bar
-            document.getElementById('searchBar').addEventListener('input', function () {
-                filterRows();
-            });
-
+        
             // Sorting
             document.querySelectorAll('.sort-button').forEach(button => {
                 button.addEventListener('click', function () {
@@ -234,7 +230,7 @@
                     this.setAttribute('data-direction', sortDirection === 'asc' ? 'desc' : 'asc');
                 });
             });
-
+        
             function sortTable(key, direction) {
                 const sortedItems = items.sort((a, b) => {
                     const aValue = a.fields[key];
@@ -243,7 +239,7 @@
                     if (aValue > bValue) return direction === 'asc' ? 1 : -1;
                     return 0;
                 });
-
+        
                 const tableBody = document.getElementById('inventoryTableBody');
                 tableBody.innerHTML = '';
                 sortedItems.forEach(item => {
@@ -278,10 +274,10 @@
                     `;
                     tableBody.appendChild(detailsRow);
                 });
-
+        
                 // Rebind toggle details button event
                 bindToggleDetails();
-
+        
                 // Update the count of visible items
                 updateItemCount();
             }
