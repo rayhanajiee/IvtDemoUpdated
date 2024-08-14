@@ -183,11 +183,15 @@
                 filterRows();
             });
         
+            document.getElementById('searchBar').addEventListener('input', function () {
+                filterRows();
+            });
+        
             function filterRows() {
                 const filterValues = {
                     no: document.getElementById('filterNo').value.toLowerCase(),
                     item: document.getElementById('filterItem').value.toLowerCase(),
-                    condition: document.getElementById('conditionSearch').value.toLowerCase(), // Use the condition search value
+                    condition: document.getElementById('conditionSearch').value.toLowerCase(), 
                     pic: document.getElementById('filterPic').value.toLowerCase(),
                     location: document.getElementById('filterLocation').value.toLowerCase(),
                     search: document.getElementById('searchBar').value.toLowerCase(),
@@ -282,6 +286,7 @@
                 updateItemCount();
             }
         });
+        
     </script>
 
     <script id="inventory-data" type="application/json">
